@@ -47,7 +47,7 @@ serverDataEntry() {
 	folder=${folder:-/}
 
 	read -p "Enter name for this server: " ovolname
-	ovolname=${ovolname:-server}
+	ovolname=${ovolname:-SFTP_Server}
 
 	command="sshfs $user@$server:$folder /Users/$USER/mnt -ovolname=$ovolname"
 }
@@ -64,6 +64,7 @@ saveServer() {
 }
 
 readServer() {
+	createFolderIfNotExists
 	ovolname=$2
 	if [ -f /Users/$USER/.sshfs/$ovolname ]; then
 		server=$(cat /Users/$USER/.sshfs/Pop | cut -d ';' -f 1)
@@ -87,18 +88,29 @@ listKnownServers() {
 }
 
 connectToServer() {
+	mkdir /Users/$USER/mnt
 	sshfs $user@$server:$folder /Users/$USER/mnt -ovolname=$ovolname
 }
 
+disconnectServer() {
+	if [ -d /Users/$USER/mnt ]; then
+		umount /Users/$USER/mnt
+		rm -Rf /Users/$USER/mnt
+	else
+		echo "There are no servers mounted"
+		exit 1
+	fi
+}
 
 # MAIN
 if ! command -v sshfs &> /dev/null; then
     echo "Please install sshfs: brew install gromgit/fuse/sshfs-mac"
+    exit 1
 else
 	case $1 in
 		-c | --connect) readServer;;
 		-l | --list) listKnownServers;;
-		-u | --umount) umount /Users/$USER/mnt;;
+		-u | --umount) disconnectServer;;
 		-h | --help) showHelp;;
 		*) serverWizzard;;
 	esac
