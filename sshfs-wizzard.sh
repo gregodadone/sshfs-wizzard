@@ -65,12 +65,12 @@ saveServer() {
 
 readServer() {
 	createFolderIfNotExists
-	ovolname=$2
+	ovolname=$1
 	if [ -f /Users/$USER/.sshfs/$ovolname ]; then
-		server=$(cat /Users/$USER/.sshfs/Pop | cut -d ';' -f 1)
-		port=$(cat /Users/$USER/.sshfs/Pop | cut -d ';' -f 2)
-		user=$(cat /Users/$USER/.sshfs/Pop | cut -d ';' -f 3)
-		folder=$(cat /Users/$USER/.sshfs/Pop | cut -d ';' -f 4)
+		server=$(cat /Users/$USER/.sshfs/$ovolname | cut -d ';' -f 1)
+		port=$(cat /Users/$USER/.sshfs/$ovolname | cut -d ';' -f 2)
+		user=$(cat /Users/$USER/.sshfs/$ovolname | cut -d ';' -f 3)
+		folder=$(cat /Users/$USER/.sshfs/$ovolname | cut -d ';' -f 4)
 
 		connectToServer
 	else
@@ -108,7 +108,7 @@ if ! command -v sshfs &> /dev/null; then
     exit 1
 else
 	case $1 in
-		-c | --connect) readServer;;
+		-c | --connect) readServer $2;;
 		-l | --list) listKnownServers;;
 		-u | --umount) disconnectServer;;
 		-h | --help) showHelp;;
